@@ -1,6 +1,3 @@
-"""
-A helper class that helps reduce all the rewriting of basic ML code
-"""
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_curve, roc_auc_score
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
@@ -10,16 +7,15 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 class Helper:
-
+    """A helper class that helps reduce rewriting of basic ML code
+    """
     _accuracy_scores = {}
     _precision_scores = {}
     _recall_scores = {}
     _f1_scores = {}
 
     def __init__(self, model, X_train, y_train, X_test, y_test):
-        """
-        model : strictly a sklearn estimator
-        X_train : training data as compaiable with sklearn
+        """To get results for a particular sklearn model
         """
         self.model = model
         self.X_train = X_train
@@ -37,8 +33,10 @@ class Helper:
         self.predict_proba_values = self.model.predict_proba(X_test)
 
     def get_scores(self):
-        """
-        returns the following score metrics : accuracy, precision, recall, f1
+        """Returns the accuracy, precision, recall and f1 scores
+
+        Returns:
+            numpy.float64: accuracy, precision, recall and f1 scores
         """
         accuracy = accuracy_score(self.y_test, self.predictions)
         precision = precision_score(self.y_test, self.predictions)
@@ -52,19 +50,25 @@ class Helper:
         return accuracy, precision, recall, f1
 
     def plot_roc(self):
-        """
-        plots the roc curve based on the y_test and the prediction_proba values
+        """Plots the ROC curve for the current object
+
+        Returns:
+            np.ndarray: for false positive rate and true positive rate
         """
         fpr, tpr, _ = roc_curve(self.y_test, self.predict_proba_values[:, [1]])
         plt.plot(fpr, tpr)
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
         plt.show()
+
         return fpr, tpr
 
     def add_scores(self, scores):
-        """
-        this function adds the scores to the class variables for finding the best scores
+        """Adds the scores to the class variables for finding the best scores
+        No need to explicitely call this method
+
+        Args:
+            scores (list): scores returned by the get_scores() method 
         """
         Helper._accuracy_scores[self.model] = scores[0]
         Helper._precision_scores[self.model] = scores[1]
@@ -73,9 +77,15 @@ class Helper:
 
     @classmethod
     def compareBaselineModels(cls, X_train, y_train, X_test, y_test):
-        """
-        this function returns the scores for few classification models namely : 
-        - Decision Tree, RandomForestClassifier, Support Vector Classifier, K Nearest Neighbours, Gradient Boosting
+        """Returns the scores for few classification models namely:
+        Decision Tree, RandomForestClassifier, 
+        Support Vector Classifier, K Nearest Neighbours
+
+        Args:
+            X_train (_type_): The X_train values
+            y_train (_type_): The y_train values
+            X_test (_type_): The X_test values
+            y_test (_type_): The y_test values
         """
         decisionTree = Helper(DecisionTreeClassifier(
             random_state=100), X_train, y_train, X_test, y_test)
@@ -117,9 +127,6 @@ class Helper:
         print(f"\tHighest F1 : {highest_f1} : {Helper._f1_scores[highest_f1]}")
 
         print("-"*100)
-
-        # gradientBoosting = GradientBoosting(random_state=100)
-        # knn = KNeighborsClassifier(n_neighbours=3)
 
     def __str__(self):
         return f"Model : {self.model}\n"
